@@ -50,15 +50,29 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 app.post('/api/persons', (req, res) => {
+  const body = req.body
+
+  //all req is content missing
+  if(!body.content){
+    return res.status(400).json({
+      error: 'content missing'
+    })
+  }
+
   const person = req.body
-  console.log(person)
-  res.json(person)
+  if(!persons.find(person => person.name === body.name)){
+    person.id = Math.floor(Math.random() * 10000)
+    console.log(person)
+    res.json(person)
+    persons = persons.concat(person)
+  }
+ 
 })
 
 app.delete('/api/persons/:id', (req, res) => {
   const id = req.params.id
-  persons = persons.filter(person => persons.id !== id)
-  response.status(204).end()
+  persons = persons.filter(person => person.id !== id)
+  res.status(204).end()
 } )
 
 const PORT = 3001
