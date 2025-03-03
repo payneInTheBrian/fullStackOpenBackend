@@ -52,20 +52,35 @@ app.get('/api/persons/:id', (req, res) => {
 app.post('/api/persons', (req, res) => {
   const body = req.body
 
-  //all req is content missing
-  if(!body.content){
-    return res.status(400).json({
-      error: 'content missing'
-    })
+    //all req is content missing
+    if(!body.name){
+      return res.status(400).json({
+        error: 'name missing'
+      })
+    }
+
+    if(!body.number){
+      return res.status(400).json({
+        error: 'number missing'
+      })
+    }
+  
+
+  const generateId = () => {
+    return Math.floor(Math.random() * 10000)
   }
 
-  const person = req.body
-  if(!persons.find(person => person.name === body.name)){
-    person.id = Math.floor(Math.random() * 10000)
-    console.log(person)
+  const person = {
+    id: generateId(),
+    name: body.name,
+    number: body.number,
+  }
+  persons.find(person => person.name === body.name)
+    ? res.status(404).end()
+    : console.log(person)
     res.json(person)
     persons = persons.concat(person)
-  }
+    
  
 })
 
