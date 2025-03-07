@@ -38,7 +38,7 @@ let persons = [
 ]
 
 app.get('/', (req, res) => {
-  res.send('<h1>Helloooo There</br>Access me @ https://phonebook-be-cdf711a64312.herokuapp.com/api/persons</h1>')
+  res.send(index.html)
 })
 
 app.get('/api/persons', (req, res) => {
