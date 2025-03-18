@@ -6,7 +6,6 @@ const morgan = require('morgan')
 const cors = require('cors')
 const mongoose = require('mongoose')
 
-
 morgan.token('body', function getId(req) {
   return `${JSON.stringify(req.body)}`
 })
@@ -17,34 +16,24 @@ app.use(express.json())
 app.use(cors())
 
 
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
 
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
-  }
-
-  next(error)
-}
-
-app.use(errorHandler)
-
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (req, res, next) => {
   Person
     .find({})
     .then(persons => {
       res.json(persons)
     })
+    .catch(error => next(error))
 })
 
-app.get('/info', (req, res) => {
+app.get('/info', (req, res, next) => {
   const date = new Date();
   Person.find({}).then(persons => {
     res.send(`<h3> Phonebook has info for ${persons.length} people </h3>
       <h3>${date}</h3>`
     )
   })
-
+    .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
@@ -55,27 +44,27 @@ app.get('/api/persons/:id', (req, res, next) => {
       res.status(404).end()
     }
   })
-
     .catch(error => next(error))
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body
 
   if (!body.name) {
     return res.status(400).json({
       error: 'name missing'
     })
+      .end()
   }
 
   if (!body.number) {
     return res.status(400).json({
       error: 'number missing'
     })
+      .end()
   }
 
   const person = new Person({
-    // id: generateId(),
     name: body.name,
     number: body.number,
   })
@@ -83,7 +72,7 @@ app.post('/api/persons', (req, res) => {
   person.save().then(savedPerson => {
     res.json(savedPerson)
   })
-
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
@@ -112,6 +101,27 @@ app.delete('/api/persons/:id', (req, res, next) => {
     })
     .catch(error => next(error))
 })
+
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({ error: 'unknown endpoint' })
+}
+
+// handler of requests with unknown endpoint
+app.use(unknownEndpoint)
+
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
