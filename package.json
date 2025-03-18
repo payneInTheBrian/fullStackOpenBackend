@@ -8,7 +8,7 @@
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
-    "postinstall": "npm --prefix dist install"
+    "postinstall": "npm run build"
   },
   "author": "",
   "license": "ISC",
