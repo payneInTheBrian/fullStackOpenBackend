@@ -1,10 +1,9 @@
-require("dotenv").config();
+require('dotenv').config()
 const express = require('express')
 const Person = require('./models/person')
 const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
-const mongoose = require('mongoose')
 
 morgan.token('body', function getId(req) {
   return `${JSON.stringify(req.body)}`
@@ -27,7 +26,7 @@ app.get('/api/persons', (req, res, next) => {
 })
 
 app.get('/info', (req, res, next) => {
-  const date = new Date();
+  const date = new Date()
   Person.find({}).then(persons => {
     res.send(`<h3> Phonebook has info for ${persons.length} people </h3>
       <h3>${date}</h3>`
@@ -96,7 +95,7 @@ app.put('/api/persons/:id', (req, res, next) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
-    .then(result => {
+    .then(() => {
       res.status(204).end()
     })
     .catch(error => next(error))
